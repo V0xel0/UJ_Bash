@@ -36,9 +36,9 @@ check_win()
 
 function game_loop
 {
-	echo
-	printf "\ns - save game\nr - read previous game\npress enter to continue\n"
-	read ans
+	clear
+	printf "\ns - save game\nr - read previous game\ninput c to play with dumb AI\nany other ASCII key to continue\n"
+	read is_ai
 	draw_field
 
 	while [[ $should_quit -eq 0 ]]
@@ -52,12 +52,20 @@ function game_loop
 			printf "%c choose move\n" $active_symbol
 		fi
 
-		read move
+		if [[ $is_ai == "c" ]] && [[ $active_symbol == "X" ]]; then
+			while 
+				move=$((($RANDOM % 9) + 1))
+				[[ "${board[$((move-1))]}" == "Y" ]] || [[ "${board[$((move-1))]}" == "X" ]]
+			do true; done
+		else
+			read move
+		fi
 
 		if [[ "$move" == "s" ]]; then
 			set | grep ^board= > save.sav
 			cat <<< "active_symbol=$active_symbol" >> "save.sav"
 			cat <<< "turn=$turn" >> "save.sav"
+			cat <<< "is_ai=$is_ai" >> "save.sav"
 		elif [[ "$move" == "r" ]] && [[ -f "save.sav" ]]; then
 			source save.sav
 		else
